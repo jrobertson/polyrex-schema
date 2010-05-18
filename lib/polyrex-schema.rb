@@ -10,8 +10,6 @@ class PolyrexSchema
   def initialize(s)
 
     @doc = Document.new
-    node = Element.new 'root'
-    @doc.add node
 
     s.scan(/\w+\[[^\]]*\]|\w+/).each do |x|
       b1, b2 = x.split('[')
