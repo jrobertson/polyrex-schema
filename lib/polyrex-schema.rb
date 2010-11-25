@@ -10,20 +10,24 @@ class PolyrexSchema
   def initialize(s)
 
     @doc = Document.new
-    #node = Element.new 'root'
-    #@doc.add node
     node = @doc
 
     s.scan(/\w+\[[^\]]*\]|\w+/).each do |x|
       b1, b2 = x.split('[')
       if b2 then
         node = append_node node, b1 do |summary|
-          b2.scan(/\w+(?=[,\]])/).each {|x| summary.add Element.new x}
+          fields = b2.scan(/\w+(?=[,\]])/)
+          fields.each {|x| summary.add Element.new x}
+          summary.add Element.new('format_mask').add_text(fields.map {|x| "[!%s]" % x}. join(' '))
         end
       else
         node = append_node node, x
       end
     end
+
+    summary = XPath.first(@doc.root, 'summary')
+    summary.add_element Element.new('recordx_type').add_text('polyrex')
+    summary.add_element Element.new('schema').add_text(s)
 
   end
 
