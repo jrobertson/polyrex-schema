@@ -8,26 +8,24 @@ class PolyrexSchema
 
   def initialize(s)
 
-    @doc = Rexle.new
-    node = @doc
+    node = nil
 
     s.scan(/\w+\[[^\]]*\]|\w+/).each do |x|
-      
+
       b1, b2 = x.split('[')
       
       if b2 then
         
-        append_node node, b1 do |summary|
+        node = append_node(node, b1) do |summary|
           
           fields = b2.scan(/\w+(?=[,\]])/)
           fields.each {|x| summary.add Rexle::Element.new x}
           summary.add Rexle::Element.new('format_mask').add_text(fields.map {|x| "[!%s]" % x}. join(' '))
+          
         end
-        
-        node = node.element '*/records'
 
       else
-        node = append_node node, x
+        node = append_node(node, x)
       end
     end
 
@@ -57,7 +55,15 @@ class PolyrexSchema
     records = Rexle::Element.new 'records'
     new_node.add records
 
-    node.add new_node
+    if node.is_a? Rexle::Element then
+      node.add new_node
+    elsif node.is_a? Rexle then
+      node.root.add new_node
+    else
+      @doc = Rexle.new(new_node.xml)
+      node = @doc.root
+    end
 
+    node.element('*/records')
   end
 end
