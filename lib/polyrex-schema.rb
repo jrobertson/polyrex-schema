@@ -20,7 +20,7 @@ class PolyrexSchema
           
           fields = b2.scan(/\w+(?=[,\]])/)
           fields.each {|x| summary.add Rexle::Element.new x}
-          summary.add Rexle::Element.new('format_mask').add_text(fields.map {|x| "[!%s]" % x}. join(' '))
+          summary.add Rexle::Element.new('format_mask').add_text(fields.map {|x2| "[!%s]" % x2}. join(' '))
           
         end
 
@@ -61,9 +61,10 @@ class PolyrexSchema
       node.root.add new_node
     else
       @doc = Rexle.new(new_node.xml)
-      node = @doc.root
+      node = @doc
     end
 
     node.element('*/records')
+
   end
 end
