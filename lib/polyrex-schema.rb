@@ -10,8 +10,7 @@ class PolyrexSchema
 
     node = nil
 
-    shortpath = s[/^[^\/]+/]
-    shortpath.scan(/\w+\[[^\]]*\]|\w+/).each do |x|
+    s.scan(/\w+\[[^\]]*\]|\w+/).each do |x|
 
       b1, b2 = x.split('[')
       
