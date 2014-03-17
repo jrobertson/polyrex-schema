@@ -4,7 +4,7 @@ The polyrex-schema gem builds a Polyrex document from a string representation of
 
 ## installation
 
-<pre>gem1.9.1 install polyrex-schema</pre>
+<pre>gem install polyrex-schema</pre>
 
 ## example
 
@@ -15,27 +15,27 @@ The polyrex-schema gem builds a Polyrex document from a string representation of
 
 output:
 <pre>
-<root>
-  <config>
-    <summary/>
-    <records>
-      <entry>
-        <summary><name/></summary>
-        <records>
-          <extension>
-            <summary><string/></summary>
-            <records>
-              <instruction>
-                <summary><line/><command/></summary>
-                <records/>
-              </instruction>
-            </records>
-          </extension>
-        </records>
-      </entry>
-    </records>
-  </config>
-</root>
+&lt;root&gt;
+  &lt;config&gt;
+    &lt;summary/&gt;
+    &lt;records&gt;
+      &lt;entry&gt;
+        &lt;summary&gt;&lt;name/&gt;&lt;/summary&gt;
+        &lt;records&gt;
+          &lt;extension&gt;
+            &lt;summary&gt;&lt;string/&gt;&lt;/summary&gt;
+            &lt;records&gt;
+              &lt;instruction&gt;
+                &lt;summary&gt;&lt;line/&gt;&lt;command/&gt;&lt;/summary&gt;
+                &lt;records/&gt;
+              &lt;/instruction&gt;
+            &lt;/records&gt;
+          &lt;/extension&gt;
+        &lt;/records&gt;
+      &lt;/entry&gt;
+    &lt;/records&gt;
+  &lt;/config&gt;
+&lt;/root&gt;
 </pre>
 
 ## Resources:
