@@ -8,63 +8,43 @@ class PolyrexSchema
 
   def initialize(s)
 
-    node = nil
+    a = s.split('/')
 
-    s.scan(/\w+\[[^\]]*\]|\w+/).each do |x|
-
-      b1, b2 = x.split('[')
-      
-      if b2 then
-        
-        node = append_node(node, b1) do |summary|
-          
-          fields = b2.scan(/\w+(?=[,\]])/)
-          fields.each {|x| summary.add Rexle::Element.new x}
-          summary.add Rexle::Element.new('format_mask').add_text(fields.map {|x2| "[!%s]" % x2}. join(' '))
-          
-        end
-
-      else
-        node = append_node(node, x)
-      end
-    end
-
-    summary = @doc.root.element 'summary'
-    summary.add_element Rexle::Element.new('recordx_type').add_text('polyrex')
-    summary.add_element Rexle::Element.new('schema').add_text(s)
-
+    r = add_node a
+    r[3] << node('recordx_type', 'polyrex') << node('schema',s)
+    @doc = Rexle.new(r)
   end
 
-  def to_s
-    @doc.to_s
-  end
-
-  def to_doc
+  def to_doc()
     @doc
+  end
+
+  def to_s()
+    @doc.to_s
   end
 
   private
 
-  def append_node(node, name)
+  def node(name, val='', *children)
+   [name, val, {}, *children]
+  end
 
-    new_node = Rexle::Element.new name
-    summary = Rexle::Element.new 'summary'
-    yield(summary) if block_given?
+  def add_node(a)
 
-    new_node.add summary
-    records = Rexle::Element.new 'records'
-    new_node.add records
+    return if a.empty?
 
-    if node.is_a? Rexle::Element then
-      node.add new_node
-    elsif node.is_a? Rexle then
-      node.root.add new_node
-    else
-      @doc = Rexle.new(new_node.xml)
-      node = @doc
+    name, raw_fields = a.shift.split('[')  
+   
+    rows = if raw_fields then
+
+      fields = raw_fields.chop.split(',')
+      field_rows = fields.map {|field| node(field.strip) }
+      field_rows << node('format_mask', fields.map{|x| "[!%s]" % x}.join(' '))
     end
 
-    node.element('*/records')
-
+    node(name, '', 
+      node('summary', '', *rows), node('records', '', add_node(a))
+    )
   end
+
 end
