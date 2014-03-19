@@ -33,8 +33,16 @@ class PolyrexSchema
 
     return if a.empty?
 
-    name, raw_fields = a.shift.split('[')  
-   
+    line = a.shift
+
+    raw_siblings = line[/\{.*/]
+
+    if raw_siblings then
+      return  raw_siblings[1..-2].split(';').map{|x| add_node [x] + a}
+    end
+
+    name, raw_fields = line.split('[',2) 
+
     rows = if raw_fields then
 
       fields = raw_fields.chop.split(',')
@@ -42,8 +50,11 @@ class PolyrexSchema
       field_rows << node('format_mask', fields.map{|x| "[!%s]" % x}.join(' '))
     end
 
-    node(name, '', 
-      node('summary', '', *rows), node('records', '', add_node(a))
+    children = add_node(a)
+    children = [children] if children and children[0].is_a? String
+
+    node(name, '',
+      node('summary', '', *rows), node('records', '', *children)
     )
   end
 
