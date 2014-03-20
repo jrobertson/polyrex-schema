@@ -47,7 +47,8 @@ class PolyrexSchema
 
       fields = raw_fields.chop.split(',')
       field_rows = fields.map {|field| node(field.strip) }
-      field_rows << node('format_mask', fields.map{|x| "[!%s]" % x}.join(' '))
+      field_rows << node('format_mask', fields.map{|x| "[!%s]" % x.strip}\
+                                                                  .join(' '))
     end
 
     children = add_node(a)
