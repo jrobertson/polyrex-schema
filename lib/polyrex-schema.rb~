@@ -15,6 +15,10 @@ class PolyrexSchema
     @doc = Rexle.new(r)
   end
 
+  def to_a()
+    scan_to_a(@doc.root.element 'records/.')
+  end
+
   def to_doc()
     @doc
   end
@@ -37,8 +41,10 @@ class PolyrexSchema
 
     raw_siblings = line[/\{.*/]
 
+
     if raw_siblings then
-      return  raw_siblings[1..-2].split(';').map{|x| add_node [x] + a}
+
+      return  raw_siblings[1..-2].split(/\s*\s*;/).map{|x| add_node [x] + a}
     end
 
     name, raw_fields = line.split('[',2) 
@@ -57,6 +63,20 @@ class PolyrexSchema
     node(name, '',
       node('summary', '', *rows), node('records', '', *children)
     )
+  end
+
+  def scan_to_a(r)
+
+    a = r.xpath('summary/*/name()') # => ["entry", "format_mask"] 
+    fields = (a - ["format_mask"]).map(&:to_sym)
+    node = r.element 'records/.'
+
+    if node then
+      children = scan_to_a(node)
+      [r.name.to_sym, *fields, children]
+    else
+      [r.name.to_sym, *fields]
+    end
   end
 
 end
