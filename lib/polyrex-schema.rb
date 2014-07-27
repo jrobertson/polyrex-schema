@@ -8,6 +8,7 @@ class PolyrexSchema
 
   def initialize(s)
 
+    s.prepend 'root/' if s[0] == '{'
     a = s.split('/')
 
     r = add_node a

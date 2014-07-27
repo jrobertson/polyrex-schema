@@ -16,7 +16,7 @@ class PolyrexSchema
   end
 
   def to_a()
-    scan_to_a(@doc.root.element 'records/.')
+    scan_to_a(@doc.root.xpath 'records/.')
   end
 
   def to_doc()
@@ -65,18 +65,22 @@ class PolyrexSchema
     )
   end
 
-  def scan_to_a(r)
+  def scan_to_a(nodes)
 
-    a = r.xpath('summary/*/name()') # => ["entry", "format_mask"] 
-    fields = (a - ["format_mask"]).map(&:to_sym)
-    node = r.element 'records/.'
+    nodes.map do |r|
 
-    if node then
-      children = scan_to_a(node)
-      [r.name.to_sym, *fields, children]
-    else
-      [r.name.to_sym, *fields]
+      a = r.xpath('summary/*/name()') # => ["entry", "format_mask"] 
+      fields = (a - ["format_mask"]).map(&:to_sym)
+      node = r.xpath 'records/.'
+
+      if node.any? then
+        children = scan_to_a(node)
+        [r.name.to_sym, *fields, children]
+      else
+        [r.name.to_sym, *fields]
+      end
     end
+
   end
 
 end
