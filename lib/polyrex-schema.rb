@@ -9,7 +9,8 @@ class PolyrexSchema
   def initialize(s)
 
     s.prepend 'root/' if s[0] == '{'
-    a = s.split('/')
+
+    a = s.scan(/(\{[^\}]+\})|(\w+[^\/]*)\/|\/(.*)/).flatten(1).compact
 
     r = add_node a
     r[3] << node('recordx_type', 'polyrex') << node('schema',s)
@@ -43,15 +44,18 @@ class PolyrexSchema
     return if a.empty?
 
     schema = a.join('/')
-
     line = a.shift
-
     raw_siblings = line[/\{.*/]
-
 
     if raw_siblings then
 
-      return  raw_siblings[1..-2].split(/\s*\s*;/).map{|x| add_node [x] + a}
+      r = raw_siblings[1..-2].split(/\s*\s*;/).map do |x| 
+
+        a2 = x.scan(/(\{[^\}]+\})|(\w+[^\/]*)\/|\/(.*)|(.+)/).flatten(1).compact
+        add_node a2 + a
+      end
+
+      return r
     end
 
     name, raw_fields = line.split('[',2) 
@@ -78,7 +82,7 @@ class PolyrexSchema
     nodes.map do |r|
 
       a = r.xpath('summary/*/name()') # => ["entry", "format_mask"] 
-      fields = (a - ["format_mask"]).map(&:to_sym)
+      fields = (a - %w(schema format_mask)).map(&:to_sym)
       node = r.xpath 'records/.'
 
       if node.any? then

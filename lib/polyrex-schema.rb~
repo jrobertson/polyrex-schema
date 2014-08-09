@@ -20,6 +20,10 @@ class PolyrexSchema
     scan_to_a(@doc.root.xpath 'records/.')
   end
 
+  def to_h()
+    scan_to_h(@doc.root.xpath 'records/.')
+  end
+
   def to_doc()
     @doc
   end
@@ -38,6 +42,8 @@ class PolyrexSchema
 
     return if a.empty?
 
+    schema = a.join('/')
+
     line = a.shift
 
     raw_siblings = line[/\{.*/]
@@ -54,6 +60,7 @@ class PolyrexSchema
 
       fields = raw_fields.chop.split(',')
       field_rows = fields.map {|field| node(field.strip) }
+      field_rows << node('schema', schema)
       field_rows << node('format_mask', fields.map{|x| "[!%s]" % x.strip}\
                                                                   .join(' '))
     end
@@ -79,6 +86,25 @@ class PolyrexSchema
         [r.name.to_sym, *fields, children]
       else
         [r.name.to_sym, *fields]
+      end
+    end
+
+  end
+
+  def scan_to_h(nodes)
+
+    nodes.map do |r|
+
+      a = r.xpath('summary/*/name()') # => ["entry", "format_mask"] 
+      schema = r.text('summary/schema')
+      fields = (a - %w(schema format_mask)).map(&:to_sym)
+      node = r.xpath 'records/.'
+
+      if node.any? then
+        children = scan_to_h(node)
+        {name: r.name.to_sym, fields: fields, schema: schema, children: children}
+      else
+        {name: r.name.to_sym, fields: fields, schema: schema}
       end
     end
 
