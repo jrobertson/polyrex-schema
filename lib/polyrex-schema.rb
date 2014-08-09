@@ -10,7 +10,7 @@ class PolyrexSchema
 
     s.prepend 'root/' if s[0] == '{'
 
-    a = s.scan(/(\{[^\}]+\})|(\w+[^\/]*)\/|\/(.*)/).flatten(1).compact
+    a = s.scan(/(\{[^\}]+\})|(\w+[^\/]*)\/|\/(.*)|(.+)/).flatten(1).compact
 
     r = add_node a
     r[3] << node('recordx_type', 'polyrex') << node('schema',s)
@@ -51,7 +51,8 @@ class PolyrexSchema
 
       r = raw_siblings[1..-2].split(/\s*\s*;/).map do |x| 
 
-        a2 = x.scan(/(\{[^\}]+\})|(\w+[^\/]*)\/|\/(.*)|(.+)/).flatten(1).compact
+        a2 = x.scan(/(\{[^\}]+\})|(\w+[^\/]*)\/|\/(.*)|(.+)/).flatten(1)\
+                                                                      .compact
         add_node a2 + a
       end
 
