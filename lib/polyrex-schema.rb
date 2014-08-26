@@ -9,29 +9,16 @@ class PolyrexSchema
   def initialize(s)
 
     s.prepend 'root/' if s[0] == '{'
-
-    a = s.scan(/(\{[^\}]+\})|(\w+[^\/]*)\/|\/(.*)|(.+)/).flatten(1).compact
-
-    r = add_node a
-    r[3] << node('recordx_type', 'polyrex') << node('schema',s)
+    
+    r = add_node split(s)
+    r[3] << node('recordx_type', 'polyrex') << node('schema',s)    
     @doc = Rexle.new(r)
   end
 
-  def to_a()
-    scan_to_a(@doc.root.xpath 'records/.')
-  end
-
-  def to_h()
-    scan_to_h(@doc.root.xpath 'records/.')
-  end
-
-  def to_doc()
-    @doc
-  end
-
-  def to_s()
-    @doc.to_s
-  end
+  def to_a()    scan_to_a(@doc.root.xpath 'records/.')  end
+  def to_h()    scan_to_h(@doc.root.xpath 'records/.')  end
+  def to_doc()  @doc                                    end
+  def to_s()    @doc.to_s                               end
 
   private
 
@@ -49,14 +36,8 @@ class PolyrexSchema
 
     if raw_siblings then
 
-      r = raw_siblings[1..-2].split(/\s*\s*;/).map do |x| 
-
-        a2 = x.scan(/(\{[^\}]+\})|(\w+[^\/]*)\/|\/(.*)|(.+)/).flatten(1)\
-                                                                      .compact
-        add_node a2 + a
-      end
-
-      return r
+      return raw_siblings[1..-2].split(/\s*\s*;/,2)\
+                                            .map {|x| add_node split(x) + a}
     end
 
     name, raw_fields = line.split('[',2) 
@@ -111,6 +92,30 @@ class PolyrexSchema
       else
         {name: r.name.to_sym, fields: fields, schema: schema}
       end
+    end
+
+  end
+
+  def split(s)
+    
+    brace_count = 0
+    
+    s.each_char.inject(['']) do |r, c|
+
+      case c
+        when '{'
+          brace_count += 1
+        when '}'
+          brace_count -= 1
+      end
+
+      if c != '/' or brace_count > 0 then
+        r.last << c
+      else
+        c = '' if c == '/'
+        r << c
+      end
+      r
     end
 
   end
