@@ -6,15 +6,26 @@ require 'rexle'
 
 class PolyrexSchema
 
-  def initialize(s)
+  attr_reader :to_schema
+  
+  def initialize(s=nil)
 
-    s.prepend 'root/' if s[0] == '{'
-    
-    r = add_node split(s)
-    r[3] << node('recordx_type', 'polyrex') << node('schema',s)    
-    @doc = Rexle.new(r)
+    if s then
+      s.prepend 'root/' if s[0] == '{'
+      
+      r = add_node split(s)
+      r[3] << node('recordx_type', 'polyrex') << node('schema',s)    
+      @doc = Rexle.new(r)
+    end
   end
 
+  
+  def parse(s)
+    doc = Rexle.new s
+    @to_schema = scan_to_schema doc.root
+    self
+  end  
+  
   def to_a()    scan_to_a(@doc.root.xpath 'records/.')  end
   def to_h()    scan_to_h(@doc.root.xpath 'records/.')  end
   def to_doc()  @doc                                    end
@@ -93,7 +104,19 @@ class PolyrexSchema
     end
 
   end
+  
+  def scan_to_schema(node)
 
+    e = node.element('summary')
+    fields = e.elements.map(&:name) - %w(schema recordx_type format_mask)
+    recs = node.xpath('records/*')
+
+    summary = fields.any? ? ("[%s]" % fields.join(', ')) : ''
+    records = recs.any? ? '/' + recs\
+                .uniq {|x| x.name <=> x.name}.map {|x| scan_to_schema(x)}.join('/') : ''
+    
+    node.name + summary + records
+  end
   
   # splits into levels identified by a slash (/) or a semicolon (;)
   #

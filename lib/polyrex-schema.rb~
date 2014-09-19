@@ -34,10 +34,8 @@ class PolyrexSchema
     line = a.shift
     raw_siblings = line[/\{.*/]
 
-    if raw_siblings then
-
-      return raw_siblings[1..-2].split(/\s*\s*;/,2)\
-                                            .map {|x| add_node split(x) + a}
+    if raw_siblings then      
+      return split(raw_siblings[1..-2],';').map {|x| add_node split(x) + a}
     end
 
     name, raw_fields = line.split('[',2) 
@@ -96,7 +94,10 @@ class PolyrexSchema
 
   end
 
-  def split(s)
+  
+  # splits into levels identified by a slash (/) or a semicolon (;)
+  #
+  def split(s, separator='/')
     
     brace_count = 0
     
@@ -109,10 +110,10 @@ class PolyrexSchema
           brace_count -= 1
       end
 
-      if c != '/' or brace_count > 0 then
+      if c != separator or brace_count > 0 then
         r.last << c
       else
-        c = '' if c == '/'
+        c = '' if c == separator
         r << c
       end
       r
