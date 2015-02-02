@@ -14,7 +14,7 @@ class PolyrexSchema
       s.prepend 'root/' if s[0] == '{'
       
       r = add_node split(s)
-      r[3] << node('recordx_type', 'polyrex') << node('schema',s)    
+      r[3] << node('recordx_type', 'polyrex')  
       @doc = Rexle.new(r)
     end
   end

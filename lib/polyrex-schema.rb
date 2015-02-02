@@ -34,7 +34,7 @@ class PolyrexSchema
   private
 
   def node(name, val='', *children)
-   [name, val, {}, *children]
+   [name, {}, val, *children]
   end
 
   def add_node(a)
