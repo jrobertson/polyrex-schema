@@ -15,7 +15,9 @@ class PolyrexSchema
       
       r = add_node split(s)
       r[3] << node('recordx_type', 'polyrex')  
+
       @doc = Rexle.new(r)
+
     end
   end
 
@@ -26,8 +28,8 @@ class PolyrexSchema
     self
   end  
   
-  def to_a()    scan_to_a(@doc.root.xpath 'records/.')  end
-  def to_h()    scan_to_h(@doc.root.xpath 'records/.')  end
+  def to_a()    scan_to_a(@doc.root.xpath 'records/*')  end
+  def to_h()    scan_to_h(@doc.root.xpath 'records/*')  end
   def to_doc()  @doc                                    end
   def to_s()    @doc.to_s                               end
 
@@ -93,7 +95,7 @@ class PolyrexSchema
       a = r.xpath('summary/*/name()') # => ["entry", "format_mask"] 
       schema = r.text('summary/schema')
       fields = (a - %w(schema format_mask)).map(&:to_sym)
-      node = r.xpath 'records/.'
+      node = r.xpath 'records/*'
 
       if node.any? then
         children = scan_to_h(node)
