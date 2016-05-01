@@ -76,7 +76,7 @@ class PolyrexSchema
 
       a = r.xpath('summary/*/name()') # => ["entry", "format_mask"] 
       fields = (a - %w(schema format_mask)).map(&:to_sym)
-      node = r.xpath 'records/.'
+      node = r.xpath 'records/*'
 
       if node.any? then
         children = scan_to_a(node)
