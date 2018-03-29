@@ -3,24 +3,41 @@
 # file: polyrex-schema.rb
 
 require 'rexle'
+require 'rexle-builder'
 
 class PolyrexSchema
 
-  attr_reader :to_schema
+  attr_reader :to_schema, :to_a, :to_h, :to_doc, :to_s
   
   def initialize(s=nil)
 
     if s then
-      s.prepend 'root/' if s[0] == '{'
-      
-      r = add_node split(s)
-      r[3] << node('recordx_type', 'polyrex')  
 
-      @doc = Rexle.new(r)
+      if s =~ /\// then
+        s.prepend 'root/' if s[0] == '{'
+        
+        r = add_node split(s)
+        r[3] << node('recordx_type', 'polyrex')  
+
+        @doc = Rexle.new(r)
+        
+        @to_a = scan_to_a(@doc.root.xpath 'records/*')
+        @to_h = scan_to_h(@doc.root.xpath 'records/*')
+        @to_doc = @doc
+        @to_s = @doc.to_s
+  
+      else
+
+        a = [s[/^[^\[]+/], *s[/(?<=\[)[^\]]+/].split(/ *, */)].map(&:to_sym)
+        @to_a = [a]
+        
+        h = {a[0] => {summary: a[1..-1].zip(Array.new(a.length-1)).to_h, 
+                      records: nil }}
+        @to_doc = Rexle.new(RexleBuilder.new(h).to_a)
+      end
 
     end
   end
-
   
   def parse(s)
     doc = Rexle.new s
@@ -28,10 +45,6 @@ class PolyrexSchema
     self
   end  
   
-  def to_a()    scan_to_a(@doc.root.xpath 'records/*')  end
-  def to_h()    scan_to_h(@doc.root.xpath 'records/*')  end
-  def to_doc()  @doc                                    end
-  def to_s()    @doc.to_s                               end
 
   private
 
