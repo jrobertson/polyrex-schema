@@ -31,7 +31,14 @@ class PolyrexSchema
         a = [s[/^[^\[]+/], *s[/(?<=\[)[^\]]+/].split(/ *, */)].map(&:to_sym)
         @to_a = [a]
         
-        h = {a[0] => {summary: a[1..-1].zip(Array.new(a.length-1)).to_h, 
+        h2 = {
+          format_mask: a[1..-1].map {|x| "[!%s]" % x }.join(' '),
+          schema: "%s[%s]" % [a[0], a[1..-1].join(', ')],
+          recordx_type: 'polyrex'
+        }
+        
+        h = {a[0] => {summary: a[1..-1]\
+                      .zip(Array.new(a.length-1)).to_h.merge(h2),
                       records: nil }}
         @to_doc = Rexle.new(RexleBuilder.new(h).to_a)
       end

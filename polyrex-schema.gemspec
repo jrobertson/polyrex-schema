@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = 'polyrex-schema'
-  s.version = '0.5.0'
+  s.version = '0.5.1'
   s.summary = 'The polyrex-schema gem creates Polyrex XML from an ' + 
       'initial shorthand schematic string.'
   s.authors = ['James Robertson']
