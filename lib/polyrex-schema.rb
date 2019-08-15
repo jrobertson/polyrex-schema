@@ -40,7 +40,7 @@ class PolyrexSchema
         h = {a[0] => {summary: a[1..-1]\
                       .zip(Array.new(a.length-1)).to_h.merge(h2),
                       records: nil }}
-        @to_doc = Rexle.new(RexleBuilder.new(h).to_a)
+        @to_doc = Rexle.new(RexleBuilder.new(h, debug: false).to_a)
       end
 
     end
